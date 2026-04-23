@@ -9,7 +9,7 @@ const databaseUrl = defineSecret('DATABASE_URL');
 let app;
 
 exports.api = onRequest(
-  { secrets: [databaseUrl], region: 'europe-west1' },
+  { secrets: [databaseUrl], region: 'europe-west1', invoker: 'public' },
   (req, res) => {
     process.env.DATABASE_URL = databaseUrl.value();
     process.env.CORS_ORIGIN = '*';
