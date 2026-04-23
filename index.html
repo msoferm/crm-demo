@@ -1,0 +1,816 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>מערכת ניהול השכרת ציוד לאירועים</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <h1>מערכת ניהול השכרת ציוד לאירועים</h1>
+        <p>ניהול ציוד, לקוחות והזמנות השכרה במקום אחד</p>
+      </div>
+      <div class="actions">
+        <button id="exportDataBtn" class="btn btn-secondary">ייצוא גיבוי</button>
+        <label class="btn btn-secondary file-input-label">
+          ייבוא גיבוי
+          <input id="importDataInput" type="file" accept="application/json" />
+        </label>
+        <button id="loadExcelBootstrapBtn" class="btn btn-secondary">טעינת נתוני אקסל</button>
+        <button id="resetDataBtn" class="btn btn-danger">איפוס כל הנתונים</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <aside class="sidebar">
+        <button class="tab-btn active" data-tab="dashboard" data-tone="blue">דשבורד</button>
+        <button class="tab-btn" data-tab="equipment" data-tone="teal">ציוד</button>
+        <button class="tab-btn" data-tab="clients" data-tone="green">לקוחות</button>
+        <button class="tab-btn" data-tab="orders" data-tone="blue">הזמנות השכרה</button>
+        <button class="tab-btn" data-tab="financeIncomes" data-tone="green">הכנסות</button>
+        <button class="tab-btn" data-tab="financeOpenPayments" data-tone="orange">מעקב תשלומים פתוחים</button>
+        <button class="tab-btn" data-tab="financeShortages" data-tone="orange">מעקב חוסרים</button>
+        <button class="tab-btn" data-tab="financeFixedExpenses" data-tone="orange">הוצאות קבועות</button>
+        <button class="tab-btn" data-tab="financeVariableExpenses" data-tone="red">הוצאות משתנות</button>
+        <button class="tab-btn" data-tab="financeAnnualSummary" data-tone="blue">סיכום שנתי</button>
+        <button class="tab-btn" data-tab="wordpressSync" data-tone="teal">WordPress Sync</button>
+      </aside>
+
+      <section class="content">
+        <div id="messageBox" class="message hidden"></div>
+
+        <section id="dashboard" class="tab-panel" data-tone="blue">
+          <div class="dashboard-header">
+            <div>
+              <h2>דשבורד</h2>
+              <p id="dashboardDate" class="muted-text"></p>
+            </div>
+            <div class="dashboard-search-wrap">
+              <input id="dashboardSearchInput" class="search dashboard-search" placeholder="חיפוש ציוד, לקוחות, הזמנות..." />
+              <button id="dashboardSearchBtn" class="btn">🔍 חיפוש</button>
+            </div>
+          </div>
+          <div id="dashboardSearchResults" class="hidden"></div>
+          <div class="stats-grid">
+            <article class="stat-card stat-blue">
+              <div class="stat-icon-wrap stat-icon-blue">🎛️</div>
+              <div class="stat-body">
+                <span>סוגי ציוד</span>
+                <strong id="statEquipmentTypes">0</strong>
+              </div>
+            </article>
+            <article class="stat-card stat-green">
+              <div class="stat-icon-wrap stat-icon-green">📦</div>
+              <div class="stat-body">
+                <span>יחידות מלאי</span>
+                <strong id="statInventoryUnits">0</strong>
+              </div>
+            </article>
+            <article class="stat-card stat-orange">
+              <div class="stat-icon-wrap stat-icon-orange">📋</div>
+              <div class="stat-body">
+                <span>הזמנות פעילות</span>
+                <strong id="statActiveOrders">0</strong>
+              </div>
+            </article>
+            <article class="stat-card stat-purple">
+              <div class="stat-icon-wrap stat-icon-purple">💰</div>
+              <div class="stat-body">
+                <span>הכנסות החודש</span>
+                <strong id="statRevenueMonth">₪0</strong>
+              </div>
+            </article>
+          </div>
+
+          <div id="dashboardHighlights" class="dashboard-highlights-grid"></div>
+
+          <div class="panel-grid">
+            <article class="panel">
+              <h3>📅 איסופים/החזרות קרובים <small>(7 ימים)</small></h3>
+              <ul id="upcomingList" class="list"></ul>
+            </article>
+            <article class="panel">
+              <h3>⚠️ התראות מלאי נמוך</h3>
+              <ul id="lowStockList" class="list"></ul>
+            </article>
+          </div>
+        </section>
+
+        <section id="equipment" class="tab-panel hidden" data-tone="teal">
+          <div class="section-head">
+            <h2>קטלוג ציוד</h2>
+            <input id="equipmentSearchInput" class="search" placeholder="🔍 חיפוש לפי שם או מק&quot;ט..." />
+            <button type="button" id="addEquipmentBtn" class="btn">+ הוספת מוצר חדש</button>
+          </div>
+          <form id="equipmentForm" class="card form-grid hidden">
+            <input id="equipmentId" type="hidden" />
+            <label>
+              שם ציוד
+              <input id="equipmentName" required />
+            </label>
+            <label>
+              קטגוריה
+              <select id="equipmentCategory" required>
+                <option value="sound">סאונד</option>
+                <option value="lighting">תאורה</option>
+                <option value="staging">במה</option>
+                <option value="video">וידאו</option>
+                <option value="furniture">ריהוט</option>
+                <option value="power">חשמל</option>
+                <option value="other">אחר</option>
+              </select>
+            </label>
+            <label>
+              כמות במלאי
+              <input id="equipmentQuantity" type="number" min="0" step="1" required />
+            </label>
+            <label>
+              מחיר יומי
+              <input id="equipmentDailyPrice" type="number" min="0" step="1" required />
+            </label>
+            <label>
+              מק"ט
+              <input id="equipmentSku" />
+            </label>
+            <label>
+              גודל
+              <input id="equipmentSize" />
+            </label>
+            <label>
+              מיקום מחסן (מדף / שורה)
+              <input id="equipmentShelfLocation" placeholder="לדוגמה: מדף A, שורה 3" />
+            </label>
+            <label>
+              כמות פגומים
+              <input id="equipmentDamagedQty" type="number" min="0" step="1" value="0" />
+            </label>
+            <label class="span-2">
+              תמונה (URL)
+              <input id="equipmentImageUrl" type="url" placeholder="https://example.com/image.jpg" />
+            </label>
+            <label>
+              קטגוריה באתר (WooCommerce)
+              <input id="equipmentWpCategoryName" placeholder="לדוגמה: רמקולים" />
+            </label>
+            <label class="span-2">
+              תיאור מוצר
+              <textarea id="equipmentNotes" rows="3"></textarea>
+            </label>
+            <div class="form-actions span-2">
+              <button type="submit" class="btn">שמירת ציוד</button>
+              <button type="button" id="equipmentCancelBtn" class="btn btn-secondary">ביטול עריכה</button>
+            </div>
+          </form>
+
+          <div id="equipmentGrid" class="equipment-grid"></div>
+        </section>
+
+        <section id="clients" class="tab-panel hidden" data-tone="green">
+          <div class="section-head">
+            <h2>לקוחות</h2>
+          </div>
+          <form id="clientForm" class="card form-grid">
+            <input id="clientId" type="hidden" />
+            <label>
+              שם מלא
+              <input id="clientName" required />
+            </label>
+            <label>
+              חברה
+              <input id="clientCompany" />
+            </label>
+            <label>
+              אימייל
+              <input id="clientEmail" type="email" />
+            </label>
+            <label>
+              טלפון
+              <input id="clientPhone" />
+            </label>
+            <label class="span-2">
+              כתובת
+              <input id="clientAddress" />
+            </label>
+            <label class="span-2">
+              הערות
+              <textarea id="clientNotes" rows="3"></textarea>
+            </label>
+            <div class="form-actions span-2">
+              <button type="submit" class="btn">שמירת לקוח</button>
+              <button type="button" id="clientCancelBtn" class="btn btn-secondary">ביטול עריכה</button>
+            </div>
+          </form>
+
+          <div class="card table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>שם</th>
+                  <th>חברה</th>
+                  <th>אימייל</th>
+                  <th>טלפון</th>
+                  <th>פעולות</th>
+                </tr>
+              </thead>
+              <tbody id="clientsTableBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="orders" class="tab-panel hidden" data-tone="blue">
+          <div class="section-head">
+            <h2>הזמנות השכרה</h2>
+            <input id="ordersSearchInput" class="search" placeholder="חיפוש לפי הזמנה / לקוח / אירוע..." />
+            <button type="button" id="addOrderBtn" class="btn">+ הוספת הזמנה חדשה</button>
+          </div>
+
+          <form id="orderForm" class="card hidden">
+            <input id="orderId" type="hidden" />
+            <div class="form-grid">
+              <label>
+                מספר הזמנה
+                <input id="orderNumber" required />
+              </label>
+              <label>
+                סטטוס
+                <select id="orderStatus" required>
+                  <option value="draft">טיוטה</option>
+                  <option value="confirmed">מאושרת</option>
+                  <option value="picked_up">נאספה</option>
+                  <option value="returned">הוחזרה</option>
+                  <option value="cancelled">בוטלה</option>
+                </select>
+              </label>
+              <label>
+                לקוח
+                <div class="client-select-wrap">
+                  <select id="orderClientId" required></select>
+                  <button type="button" id="orderAddClientBtn" class="btn btn-secondary">+ לקוח חדש</button>
+                </div>
+              </label>
+              <div id="orderInlineClientForm" class="inline-client-form hidden">
+                <div class="inline-client-fields">
+                  <input id="inlineClientName" placeholder="שם מלא *" />
+                  <input id="inlineClientPhone" placeholder="טלפון" />
+                  <input id="inlineClientEmail" type="email" placeholder="אימייל" />
+                  <input id="inlineClientCompany" placeholder="חברה / עסק" />
+                </div>
+                <div class="inline-client-actions">
+                  <button type="button" id="inlineClientSaveBtn" class="btn">הוסף לקוח</button>
+                  <button type="button" id="inlineClientCancelBtn" class="btn btn-secondary">ביטול</button>
+                </div>
+              </div>
+              <label>
+                שם אירוע
+                <input id="orderEventName" required />
+              </label>
+              <label>
+                מיקום אירוע
+                <input id="orderEventLocation" required />
+              </label>
+              <label>
+                תאריך התחלה
+                <input id="orderStartDate" type="date" required />
+              </label>
+              <label>
+                תאריך סיום
+                <input id="orderEndDate" type="date" required />
+              </label>
+              <label>
+                הנחה
+                <input id="orderDiscount" type="number" min="0" step="1" value="0" />
+              </label>
+              <label>
+                מקדמה
+                <input id="orderDeposit" type="number" min="0" step="1" value="0" />
+              </label>
+              <label>
+                סטטוס תשלום
+                <select id="orderPaymentStatus">
+                  <option value="unpaid">לא שולם</option>
+                  <option value="partial">שולם חלקית</option>
+                  <option value="paid">שולם במלואו</option>
+                </select>
+              </label>
+              <label>
+                אמצעי תשלום
+                <select id="orderPaymentMethod">
+                  <option value="">— לא צוין —</option>
+                  <option value="cash">מזומן</option>
+                  <option value="credit">אשראי</option>
+                  <option value="transfer">העברה בנקאית</option>
+                  <option value="check">צ׳ק</option>
+                  <option value="other">אחר</option>
+                </select>
+              </label>
+              <label class="span-2">
+                הערות
+                <textarea id="orderNotes" rows="3"></textarea>
+              </label>
+            </div>
+
+            <div class="items-head">
+              <h3>פריטי הזמנה</h3>
+              <button type="button" id="addOrderItemBtn" class="btn btn-secondary">הוסף פריט</button>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>ציוד</th>
+                    <th>כמות</th>
+                    <th>מחיר יומי</th>
+                    <th>זמינות</th>
+                    <th>סה״כ שורה</th>
+                    <th>פעולה</th>
+                  </tr>
+                </thead>
+                <tbody id="orderItemsBody"></tbody>
+              </table>
+            </div>
+
+            <div class="totals">
+              <p>ימי השכרה: <strong id="orderDays">1</strong></p>
+              <p>סכום ביניים: <strong id="orderSubtotal">₪0</strong></p>
+              <p>מע״מ (18%): <strong id="orderVat">₪0</strong></p>
+              <p>סה״כ לתשלום: <strong id="orderTotal">₪0</strong></p>
+              <p>יתרה אחרי מקדמה: <strong id="orderBalance">₪0</strong></p>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn">שמירת הזמנה</button>
+              <button type="button" id="orderCancelBtn" class="btn btn-secondary">ביטול עריכה</button>
+              <button type="button" id="orderPrintDeliveryBtn" class="btn btn-secondary hidden">🖨️ תעודת משלוח</button>
+              <button type="button" id="orderPrintReturnBtn" class="btn btn-secondary hidden">🖨️ תעודת החזרה</button>
+            </div>
+          </form>
+
+          <!-- Calendar -->
+          <div class="orders-calendar-wrap card">
+            <div class="orders-cal-nav">
+              <button type="button" id="ordersCalPrevBtn" class="btn btn-secondary">&#8249;</button>
+              <span id="ordersCalMonthLabel" class="orders-cal-month-label"></span>
+              <button type="button" id="ordersCalNextBtn" class="btn btn-secondary">&#8250;</button>
+            </div>
+            <div id="ordersCalendarGrid" class="orders-cal-grid"></div>
+          </div>
+
+          <!-- Active & Upcoming tiles -->
+          <div class="orders-tiles-wrap">
+            <div class="orders-tile-section">
+              <div class="orders-tile-section-head">
+                <span class="orders-tile-dot active-dot"></span>
+                <h3>הזמנות פעילות</h3>
+              </div>
+              <div id="ordersActiveGrid" class="orders-tile-grid"></div>
+            </div>
+            <div class="orders-tile-section">
+              <div class="orders-tile-section-head">
+                <span class="orders-tile-dot future-dot"></span>
+                <h3>הזמנות עתידיות</h3>
+              </div>
+              <div id="ordersFutureGrid" class="orders-tile-grid"></div>
+            </div>
+          </div>
+        </section>
+
+        <section id="financeIncomes" class="tab-panel hidden" data-tone="green">
+          <div class="section-head">
+            <h2>הכנסות</h2>
+          </div>
+          <div class="card incomes-range-controls">
+            <div class="incomes-range-fields">
+              <label>
+                מתאריך
+                <input id="incomesFromDate" type="date" />
+              </label>
+              <label>
+                עד תאריך
+                <input id="incomesToDate" type="date" />
+              </label>
+            </div>
+            <div class="form-actions">
+              <button id="applyIncomesRangeBtn" type="button" class="btn">החל תקופה</button>
+              <button id="lastMonthIncomesBtn" type="button" class="btn btn-secondary">חודש אחרון</button>
+            </div>
+            <p id="financeIncomesRangeSummary" class="muted-text finance-note"></p>
+          </div>
+          <div class="section-head">
+            <h3>הוספת הכנסה</h3>
+            <button id="addIncomeRowBtn" type="button" class="btn">+ הוספת הכנסה נוספת</button>
+          </div>
+          <form id="incomeForm" class="card form-grid hidden">
+            <label>
+              תאריך אספקה
+              <input id="incomeDeliveryDate" type="date" />
+            </label>
+            <label>
+              תאריך תשלום
+              <input id="incomePaymentDate" type="date" required />
+            </label>
+            <label>
+              לקוח
+              <input id="incomeClient" required />
+            </label>
+            <label>
+              סכום לפני מע"מ
+              <input id="incomeAmountBeforeVat" type="number" min="0" step="0.01" />
+            </label>
+            <label>
+              שולם בפועל
+              <input id="incomeAmountPaid" type="number" min="0" step="0.01" />
+            </label>
+            <label>
+              סוג תשלום
+              <input id="incomePaymentType" placeholder="מזומן / אשראי / העברה..." />
+            </label>
+            <label>
+              סטטוס חזרה
+              <input id="incomeReturned" placeholder="חזר / לא חזר" />
+            </label>
+            <label>
+              הוצאות צמודות
+              <input id="incomeAttachedExpenses" />
+            </label>
+            <label class="span-2">
+              הערות
+              <input id="incomeNotes" />
+            </label>
+            <div class="form-actions span-2">
+              <button type="submit" class="btn">שמירת הכנסה</button>
+              <button type="button" id="incomeCancelBtn" class="btn btn-secondary">ביטול</button>
+            </div>
+          </form>
+          <div id="financeIncomesTable" class="card table-wrap"></div>
+        </section>
+
+        <section id="financeOpenPayments" class="tab-panel hidden" data-tone="orange">
+          <div class="section-head">
+            <h2>מעקב תשלומים פתוחים</h2>
+          </div>
+          <div class="section-head">
+            <h3>הוספת תשלום פתוח</h3>
+            <button id="addOpenPaymentRowBtn" type="button" class="btn">+ הוספת תשלום פתוח</button>
+          </div>
+          <form id="openPaymentForm" class="card form-grid hidden">
+            <label>
+              תאריך תשלום
+              <input id="openPaymentDate" type="date" required />
+            </label>
+            <label>
+              לקוח
+              <input id="openPaymentClient" required />
+            </label>
+            <label>
+              סכום לפני מע"מ
+              <input id="openPaymentAmountBeforeVat" type="number" min="0" step="0.01" />
+            </label>
+            <label>
+              שולם בפועל
+              <input id="openPaymentAmountPaid" type="number" min="0" step="0.01" />
+            </label>
+            <label>
+              יתרת תשלום
+              <input id="openPaymentBalance" type="number" min="0" step="0.01" />
+            </label>
+            <label>
+              סוג תשלום
+              <input id="openPaymentType" placeholder="מזומן / אשראי / העברה..." />
+            </label>
+            <label>
+              סטטוס חזרה
+              <input id="openPaymentReturned" placeholder="חזר / לא חזר" />
+            </label>
+            <label>
+              הוצאות צמודות
+              <input id="openPaymentAttachedExpenses" />
+            </label>
+            <label class="span-2">
+              הערות
+              <input id="openPaymentNotes" />
+            </label>
+            <div class="form-actions span-2">
+              <button type="submit" class="btn">שמירת תשלום פתוח</button>
+              <button type="button" id="openPaymentCancelBtn" class="btn btn-secondary">ביטול</button>
+            </div>
+          </form>
+          <div id="financeOpenPaymentsTable" class="card table-wrap"></div>
+        </section>
+
+        <section id="financeShortages" class="tab-panel hidden" data-tone="orange">
+          <div class="section-head">
+            <h2>מעקב חוסרים</h2>
+          </div>
+          <div class="section-head">
+            <h3>הוספת חוסר</h3>
+            <button id="addShortageRowBtn" type="button" class="btn">+ הוספת חוסר</button>
+          </div>
+          <form id="shortageForm" class="card form-grid hidden">
+            <label>
+              תאריך
+              <input id="shortageDate" type="date" required />
+            </label>
+            <label>
+              לקוח
+              <input id="shortageClient" required />
+            </label>
+            <label>
+              סכום לפני מע"מ
+              <input id="shortageAmountBeforeVat" type="number" min="0" step="0.01" />
+            </label>
+            <label>
+              שולם בפועל
+              <input id="shortageAmountPaid" type="number" min="0" step="0.01" />
+            </label>
+            <label>
+              סוג תשלום
+              <input id="shortagePaymentType" placeholder="מזומן / אשראי / העברה..." />
+            </label>
+            <label>
+              סטטוס חזרה
+              <input id="shortageReturned" placeholder="חזר / לא חזר" />
+            </label>
+            <label>
+              הוצאות צמודות
+              <input id="shortageAttachedExpenses" />
+            </label>
+            <label class="span-2">
+              הערות
+              <input id="shortageNotes" />
+            </label>
+            <div class="form-actions span-2">
+              <button type="submit" class="btn">שמירת חוסר</button>
+              <button type="button" id="shortageCancelBtn" class="btn btn-secondary">ביטול</button>
+            </div>
+          </form>
+          <div id="financeShortagesTable" class="card table-wrap"></div>
+        </section>
+
+        <section id="financeFixedExpenses" class="tab-panel hidden" data-tone="orange">
+          <div class="section-head">
+            <h2>הוצאות קבועות</h2>
+          </div>
+          <form id="fixedExpenseForm" class="card form-grid">
+            <label>
+              חודש (לדוגמה: ינואר 2026)
+              <input id="fixedMonthLabel" required />
+            </label>
+            <label>
+              שכירות
+              <input id="fixedRent" type="number" min="0" step="0.01" />
+            </label>
+            <label>
+              ארנונה
+              <input id="fixedArnona" type="number" min="0" step="0.01" />
+            </label>
+            <label>
+              חשמל
+              <input id="fixedElectric" type="number" min="0" step="0.01" />
+            </label>
+            <label>
+              מים
+              <input id="fixedWater" type="number" min="0" step="0.01" />
+            </label>
+            <label>
+              באסם
+              <input id="fixedBasam" type="number" min="0" step="0.01" />
+            </label>
+            <label>
+              אחינועם (בסיס)
+              <input id="fixedAhinoam" type="number" min="0" step="0.01" />
+            </label>
+            <label>
+              בונוס+עלות מעסיק
+              <input id="fixedBonus" type="number" min="0" step="0.01" />
+            </label>
+            <label>
+              פיני
+              <input id="fixedPini" type="number" min="0" step="0.01" />
+            </label>
+            <label>
+              ציפי
+              <input id="fixedTzippy" type="number" min="0" step="0.01" />
+            </label>
+            <label>
+              תוספת פיני
+              <input id="fixedPiniExtra" type="number" min="0" step="0.01" />
+            </label>
+            <label class="span-2">
+              הערות
+              <input id="fixedNotes" />
+            </label>
+            <div class="form-actions span-2">
+              <button type="submit" class="btn">הוספת הוצאה קבועה</button>
+            </div>
+          </form>
+          <div id="financeFixedExpensesTable" class="card table-wrap"></div>
+        </section>
+
+        <section id="financeVariableExpenses" class="tab-panel hidden" data-tone="red">
+          <div class="section-head">
+            <h2>הוצאות משתנות</h2>
+          </div>
+          <form id="variableExpenseForm" class="card form-grid">
+            <label>
+              תאריך
+              <input id="variableDate" type="date" required />
+            </label>
+            <label>
+              קטגוריה
+              <input id="variableCategory" required />
+            </label>
+            <label>
+              פירוט
+              <input id="variableDetail" />
+            </label>
+            <label>
+              סכום לפני מע"מ
+              <input id="variableAmountBeforeVat" type="number" min="0" step="0.01" />
+            </label>
+            <label>
+              סכום אחרי מע"מ
+              <input id="variableAmountAfterVat" type="number" min="0" step="0.01" />
+            </label>
+            <label class="span-2">
+              הערות
+              <input id="variableNotes" />
+            </label>
+            <div class="form-actions span-2">
+              <button type="submit" class="btn">הוספת הוצאה משתנה</button>
+            </div>
+          </form>
+          <div id="financeVariableExpensesTable" class="card table-wrap"></div>
+        </section>
+
+        <section id="financeAnnualSummary" class="tab-panel hidden" data-tone="blue">
+          <div class="section-head">
+            <h2>סיכום שנתי</h2>
+            <select id="annualSummaryYear"></select>
+          </div>
+          <article class="card annual-yearly-chart-card">
+            <div class="annual-yearly-chart-head">
+              <h3>גרף הכנסות והוצאות לפי שנים</h3>
+              <p class="muted-text">השוואה שנתית בין הכנסות להוצאות קבועות ומשתנות</p>
+            </div>
+            <div id="annualSummaryYearlyChart" class="annual-yearly-chart"></div>
+          </article>
+          <div id="annualSummaryStats" class="card annual-stats"></div>
+          <div class="card table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>חודש</th>
+                  <th>הכנסות</th>
+                  <th>הוצאות קבועות</th>
+                  <th>הוצאות משתנות</th>
+                  <th>רווח</th>
+                </tr>
+              </thead>
+              <tbody id="annualSummaryTableBody"></tbody>
+            </table>
+          </div>
+          <article class="card">
+            <h3>סיכום חודשי 2025 (מקור אקסל)</h3>
+            <div id="monthlySummary2025Table" class="table-wrap"></div>
+          </article>
+          <article class="card">
+            <h3>סיכום חודשי 2026 (מקור אקסל)</h3>
+            <div id="monthlySummary2026Table" class="table-wrap"></div>
+          </article>
+        </section>
+
+        <section id="wordpressSync" class="tab-panel hidden" data-tone="teal">
+          <div class="section-head">
+            <h2>WordPress / WooCommerce Sync</h2>
+          </div>
+
+          <form id="wpSyncForm" class="card form-grid">
+            <label class="span-2">
+              WordPress Site URL
+              <input id="wpSiteUrl" type="url" placeholder="https://example.com" />
+            </label>
+            <label>
+              Consumer Key
+              <input id="wpConsumerKey" />
+            </label>
+            <label>
+              Consumer Secret
+              <input id="wpConsumerSecret" />
+            </label>
+            <label>
+              WordPress Username (להעלאת תמונות)
+              <input id="wpUsername" placeholder="admin" />
+            </label>
+            <label>
+              Application Password (להעלאת תמונות)
+              <input id="wpAppPassword" type="password" placeholder="xxxx xxxx xxxx xxxx xxxx xxxx" />
+            </label>
+            <label class="span-2 wp-autosync-field">
+              <input id="wpAutoSync" type="checkbox" />
+              Auto sync products after local equipment changes
+            </label>
+            <div class="form-actions span-2">
+              <button type="submit" class="btn">Save Settings</button>
+              <button type="button" id="wpTestConnectionBtn" class="btn btn-secondary">Test Connection</button>
+              <button type="button" id="wpPullBtn" class="btn btn-secondary">Import from WordPress</button>
+              <button type="button" id="wpPushBtn" class="btn btn-secondary">Push to WordPress</button>
+              <button type="button" id="wpSyncBothBtn" class="btn">Two-way Sync</button>
+            </div>
+          </form>
+
+          <article class="card">
+            <h3>Sync Status</h3>
+            <p id="wpSyncStats" class="muted-text">No sync activity yet.</p>
+            <pre id="wpSyncLog" class="sync-log"></pre>
+          </article>
+        </section>
+      </section>
+    </main>
+
+    <dialog id="equipmentModal" class="equipment-modal">
+      <div class="modal-header">
+        <h3 id="equipmentModalTitle">פרטי ציוד</h3>
+        <button type="button" id="equipmentModalClose" class="modal-close" aria-label="סגור">&times;</button>
+      </div>
+      <div id="equipmentModalImagePreview" class="modal-image-preview"></div>
+      <form id="equipmentModalForm" class="form-grid">
+        <input id="equipmentModalId" type="hidden" />
+        <label>
+          שם ציוד
+          <input id="equipmentModalName" required />
+        </label>
+        <label>
+          קטגוריה
+          <select id="equipmentModalCategory" required>
+            <option value="sound">סאונד</option>
+            <option value="lighting">תאורה</option>
+            <option value="staging">במה</option>
+            <option value="video">וידאו</option>
+            <option value="furniture">ריהוט</option>
+            <option value="power">חשמל</option>
+            <option value="other">אחר</option>
+          </select>
+        </label>
+        <label>
+          כמות במלאי
+          <input id="equipmentModalQuantity" type="number" min="0" step="1" required />
+        </label>
+        <label>
+          מחיר יומי (₪)
+          <input id="equipmentModalDailyPrice" type="number" min="0" step="1" required />
+        </label>
+        <label>
+          מק"ט
+          <input id="equipmentModalSku" />
+        </label>
+        <label>
+          גודל
+          <input id="equipmentModalSize" />
+        </label>
+        <label>
+          מיקום מחסן (מדף / שורה)
+          <input id="equipmentModalShelfLocation" placeholder="לדוגמה: מדף A, שורה 3" />
+        </label>
+        <label>
+          כמות פגומים
+          <input id="equipmentModalDamagedQty" type="number" min="0" step="1" value="0" />
+        </label>
+        <label class="span-2">
+          תמונה (URL)
+          <input id="equipmentModalImageUrl" type="url" placeholder="https://example.com/image.jpg" />
+        </label>
+        <label class="span-2">
+          או העלה תמונה מהמחשב
+          <input id="equipmentModalImageFile" type="file" accept="image/*" />
+        </label>
+        <label>
+          קטגוריה באתר (WooCommerce)
+          <input id="equipmentModalWpCategoryName" placeholder="לדוגמה: רמקולים" />
+        </label>
+        <label class="span-2">
+          תיאור מוצר
+          <textarea id="equipmentModalNotes" rows="3"></textarea>
+        </label>
+        <div class="form-actions span-2">
+          <button type="submit" class="btn">שמור שינויים</button>
+          <button type="button" id="equipmentModalSaveAndSyncBtn" class="btn">💾 שמור וסנכרן</button>
+          <button type="button" id="equipmentModalSyncBtn" class="btn btn-secondary">🔄 סנכרן ל-WordPress</button>
+          <button type="button" id="equipmentModalCancelBtn" class="btn btn-secondary">סגור</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="dayDetailDialog" class="day-detail-dialog">
+      <div class="day-detail-header">
+        <h3 id="dayDetailTitle"></h3>
+        <button type="button" id="dayDetailCloseBtn" class="modal-close">✕</button>
+      </div>
+      <div id="dayDetailBody" class="day-detail-body"></div>
+    </dialog>
+
+    <script src="./excel-bootstrap-data.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>

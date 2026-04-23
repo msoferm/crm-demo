@@ -1,0 +1,66 @@
+services:
+
+  # ─── PostgreSQL ───────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: crm_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       crm_rental
+      POSTGRES_USER:     postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d crm_rental"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    ports:
+      - "5432:5432"   # expose only for local dev/debugging
+
+  # ─── Backend (Node.js) ───────────────────────────────────
+  backend:
+    build:
+      context: .
+      dockerfile: ./crm-backend/Dockerfile
+    container_name: crm_backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PORT:        4000
+      DB_HOST:     postgres
+      DB_PORT:     5432
+      DB_NAME:     crm_rental
+      DB_USER:     postgres
+      DB_PASSWORD: postgres
+      CORS_ORIGIN: http://localhost
+      NODE_ENV:    production
+    volumes:
+      - uploads_data:/app/uploads
+    ports:
+      - "4000:4000"   # expose for direct API access during dev
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:4000/api/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─── Frontend (React → nginx) ────────────────────────────
+  frontend:
+    build:
+      context: ./crm-frontend
+      dockerfile: Dockerfile
+    container_name: crm_frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "80:80"
+
+volumes:
+  postgres_data:
+  uploads_data:
