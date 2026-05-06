@@ -140,7 +140,7 @@ export default function Settings() {
             <strong>הוראות:</strong> הזן את פרטי החיבור ולחץ <strong>שמור</strong>. לאחר מכן השתמש בלוח הסנכרון למטה.
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div className="form-row-2">
             <div className="form-group" style={{ gridColumn: '1/-1' }}>
               <label>כתובת האתר (URL)</label>
               <input value={form.wp_url} onChange={e => set('wp_url', e.target.value)} placeholder="https://your-site.com" />
@@ -187,7 +187,7 @@ export default function Settings() {
           </div>
         ) : (
           <>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div className="form-row-2">
 
               {/* Push */}
               <div style={{ border: '2px solid #dbeafe', borderRadius: 10, padding: '1rem' }}>

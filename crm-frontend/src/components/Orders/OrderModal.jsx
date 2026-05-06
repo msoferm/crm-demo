@@ -112,7 +112,7 @@ export default function OrderModal({ order, onClose, onSaved }) {
         </div>
 
         <form onSubmit={handleSave}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div className="form-row-2">
 
             {/* Client */}
             <div className="form-group" style={{ gridColumn: '1/-1' }}>
@@ -136,7 +136,7 @@ export default function OrderModal({ order, onClose, onSaved }) {
             {showNewClient && (
               <div className="client-quick-add" style={{ gridColumn: '1/-1' }}>
                 <h4>➕ הוספת לקוח חדש</h4>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '.5rem' }}>
+                <div className="form-row-2" style={{ gap: '.5rem' }}>
                   <input placeholder="שם מלא *" value={newClient.name} onChange={e => setNewClient(n => ({ ...n, name: e.target.value }))} required />
                   <input placeholder="טלפון" value={newClient.phone} onChange={e => setNewClient(n => ({ ...n, phone: e.target.value }))} />
                   <input placeholder="אימייל" value={newClient.email} onChange={e => setNewClient(n => ({ ...n, email: e.target.value }))} />

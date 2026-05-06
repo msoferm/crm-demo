@@ -89,7 +89,7 @@ export default function Orders() {
     <div>
       <div className="section-header">
         <h2>📋 הזמנות</h2>
-        <div style={{ display: 'flex', gap: '.5rem' }}>
+        <div className="header-actions">
           <button className={`btn btn-sm ${view === 'calendar' ? '' : 'btn-secondary'}`} onClick={() => setView('calendar')}>📅 לוח שנה</button>
           <button className={`btn btn-sm ${view === 'list' ? '' : 'btn-secondary'}`} onClick={() => setView('list')}>📋 רשימה</button>
           <button className="btn" onClick={() => setModalOrder(null)}>+ הזמנה חדשה</button>

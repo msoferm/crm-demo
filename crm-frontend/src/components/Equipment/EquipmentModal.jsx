@@ -92,7 +92,7 @@ export default function EquipmentModal({ item, onClose, onSaved }) {
         </div>
 
         <form onSubmit={handleSave}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div className="form-row-2">
             {/* Image */}
             <div style={{ gridColumn: '1 / -1' }}>
               {imagePreview

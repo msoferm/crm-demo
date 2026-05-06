@@ -85,13 +85,13 @@ export default function FixedExpenses({ onToast }) {
 
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.2rem' }}>
-        <h3 style={{ margin: 0 }}>🔒 הוצאות קבועות</h3>
+      <div className="finance-toolbar">
+        <h3>🔒 הוצאות קבועות</h3>
         <button className="btn" onClick={() => setShowNew(true)}>+ הוצאה חדשה</button>
       </div>
 
       {/* KPIs */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+      <div className="kpi-grid cols-3">
         {[
           { label: 'עלות חודשית',  value: nis(monthlyTotal),        color: '#dc2626' },
           { label: 'עלות שנתית',   value: nis(monthlyTotal * 12),   color: '#7c3aed' },
@@ -220,7 +220,7 @@ export default function FixedExpenses({ onToast }) {
                   <input className="form-input" type={type} value={newForm[key]} onChange={e => setNewForm(f=>({...f,[key]:e.target.value}))} />
                 </div>
               ))}
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'1rem' }}>
+              <div className="form-row-2">
                 <div className="form-group">
                   <label className="form-label">סכום *</label>
                   <input className="form-input" type="number" min="0" step="0.01" value={newForm.amount} onChange={e => setNewForm(f=>({...f,amount:e.target.value}))} />

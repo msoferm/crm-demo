@@ -31,14 +31,7 @@ export default function Finance() {
       </div>
 
       {/* Sub-tabs */}
-      <div style={{
-        display: 'flex',
-        gap: '.4rem',
-        flexWrap: 'wrap',
-        marginBottom: '1.5rem',
-        borderBottom: '2px solid #e5e7eb',
-        paddingBottom: '.6rem',
-      }}>
+      <div className="finance-subtabs">
         {TABS.map(tab => (
           <button
             key={tab.id}

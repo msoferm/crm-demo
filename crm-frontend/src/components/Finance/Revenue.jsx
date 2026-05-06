@@ -27,8 +27,8 @@ export default function Revenue() {
 
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.2rem' }}>
-        <h3 style={{ margin: 0 }}>💰 הכנסות</h3>
+      <div className="finance-toolbar">
+        <h3>💰 הכנסות</h3>
         <select className="form-input" style={{ width: 'auto' }} value={year} onChange={e => setYear(+e.target.value)}>
           {years.map(y => <option key={y} value={y}>{y}</option>)}
         </select>
@@ -37,7 +37,7 @@ export default function Revenue() {
       {loading && <div className="spinner" />}
 
       {totals && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+        <div className="kpi-grid cols-4">
           {[
             { label: 'סה"כ הכנסות', value: nis(totals.total), color: '#1e40af' },
             { label: 'שולם', value: nis(totals.paid), color: '#16a34a' },

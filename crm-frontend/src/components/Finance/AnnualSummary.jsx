@@ -206,8 +206,8 @@ export default function AnnualSummary() {
 
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
-        <h3 style={{ margin: 0 }}>📈 סיכום שנתי</h3>
+      <div className="finance-toolbar">
+        <h3>📈 סיכום שנתי</h3>
         <select className="form-input" style={{ width: 'auto' }} value={year} onChange={e => setYear(+e.target.value)}>
           {years.map(y => <option key={y} value={y}>{y}</option>)}
         </select>
@@ -218,7 +218,7 @@ export default function AnnualSummary() {
       {data && curr && (
         <>
           {/* ── KPI Cards ── */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+          <div className="kpi-grid cols-4">
             {[
               { label: 'סה"כ הכנסות', value: nis(curr.revenue),       color: '#1e40af', prev: prev?.revenue },
               { label: 'סה"כ הוצאות', value: nis(curr.total_expenses), color: '#dc2626', prev: prev?.total_expenses },
@@ -235,7 +235,7 @@ export default function AnnualSummary() {
           </div>
 
           {/* ── Charts Row ── */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+          <div className="charts-row">
             <div className="card" style={{ padding: '1.2rem' }}>
               <div style={{ fontWeight: 700, marginBottom: '.8rem', color: '#374151' }}>📊 הכנסות מול הוצאות — {year}</div>
               <BarChart months={data.months} />

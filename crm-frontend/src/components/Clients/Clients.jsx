@@ -62,7 +62,6 @@ export default function Clients() {
           placeholder="🔍 חיפוש לפי שם, חברה, טלפון..."
           value={search}
           onChange={e => setSearch(e.target.value)}
-          style={{ minWidth: 260 }}
         />
       </div>
 

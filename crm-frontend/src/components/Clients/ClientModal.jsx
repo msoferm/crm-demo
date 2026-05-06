@@ -62,7 +62,7 @@ export default function ClientModal({ client, onClose, onSaved }) {
 
         {tab === 'details' && (
           <form onSubmit={handleSave}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div className="form-row-2">
               <div className="form-group" style={{ gridColumn: '1/-1' }}>
                 <label>שם מלא *</label>
                 <input value={form.name} onChange={e => set('name', e.target.value)} required />

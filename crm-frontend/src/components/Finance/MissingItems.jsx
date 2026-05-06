@@ -66,7 +66,7 @@ export default function MissingItems({ onToast }) {
     <div>
       <h3 style={{ marginBottom: '1.2rem' }}>🔍 מעקב חוסרים ונזקים</h3>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+      <div className="kpi-grid cols-3">
         {[
           { label: 'פגום', key: 'damaged', color: '#d97706' },
           { label: 'חסר',  key: 'missing', color: '#dc2626' },
@@ -81,7 +81,7 @@ export default function MissingItems({ onToast }) {
         ))}
       </div>
 
-      <div style={{ display: 'flex', gap: '.5rem', marginBottom: '1rem' }}>
+      <div className="filter-row">
         {[['all','הכל'],['damaged','פגום'],['missing','חסר']].map(([v,l]) => (
           <button key={v} className={`btn btn-sm ${condFilter === v ? '' : 'btn-secondary'}`} onClick={() => setCondFilter(v)}>{l}</button>
         ))}

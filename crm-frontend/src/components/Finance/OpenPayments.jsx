@@ -68,7 +68,7 @@ export default function OpenPayments({ onToast }) {
     <div>
       <h3 style={{ marginBottom: '1.2rem' }}>⏳ מעקב תשלומים פתוחים</h3>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+      <div className="kpi-grid cols-3">
         {[
           { label: 'סה"כ חוב פתוח', value: nis(total),   color: '#dc2626' },
           { label: 'הזמנות פתוחות', value: rows.length,   color: '#d97706' },

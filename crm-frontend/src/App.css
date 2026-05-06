@@ -20,6 +20,7 @@
   font-size: 15px;
 }
 
+html, body { overflow-x: hidden; max-width: 100%; }
 body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--text); direction: rtl; }
 button { cursor: pointer; font: inherit; }
 input, select, textarea { font: inherit; direction: rtl; }
@@ -68,7 +69,56 @@ a { color: inherit; text-decoration: none; }
 .main-content {
   flex: 1; margin-right: var(--sidebar-w);
   padding: 1.5rem; min-height: 100vh;
+  min-width: 0; max-width: calc(100% - var(--sidebar-w));
 }
+
+/* ─── Responsive helper grids ──────────────────────────── */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem; margin-bottom: 1.5rem;
+}
+.kpi-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+.kpi-grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+
+.charts-row {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 1rem; margin-bottom: 1rem;
+}
+.charts-row.cols-1 { grid-template-columns: 1fr; }
+
+.finance-toolbar {
+  display: flex; align-items: center; gap: 1rem;
+  margin-bottom: 1.2rem; flex-wrap: wrap;
+}
+.finance-toolbar h3 { margin: 0; }
+
+.filter-row {
+  display: flex; gap: .5rem; margin-bottom: 1rem; flex-wrap: wrap;
+}
+
+.finance-subtabs {
+  display: flex; gap: .4rem; flex-wrap: wrap;
+  margin-bottom: 1.5rem; padding-bottom: .6rem;
+  border-bottom: 2px solid #e5e7eb;
+  overflow-x: auto; -webkit-overflow-scrolling: touch;
+}
+.finance-subtabs .btn { white-space: nowrap; }
+
+.header-actions {
+  display: flex; gap: .5rem; flex-wrap: wrap;
+}
+@media (max-width: 768px) {
+  .header-actions { width: 100%; }
+  .header-actions .btn { flex: 1 1 auto; justify-content: center; }
+}
+
+.modal-body { display: flex; flex-direction: column; gap: .75rem; padding: .25rem 0; }
+.modal-footer { display: flex; gap: .5rem; justify-content: flex-end; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); flex-wrap: wrap; }
+.form-input { width: 100%; }
+.form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+@media (max-width: 600px) { .form-row-2 { grid-template-columns: 1fr; } }
+.form-label { font-size: .82rem; font-weight: 600; color: var(--muted); display: block; margin-bottom: .25rem; }
 
 /* ─── Toast ────────────────────────────────────────────── */
 .toast {
@@ -372,7 +422,35 @@ tr:hover td { background: #f8fafc; }
   .nav-item { padding: .85rem 1.25rem; font-size: 1rem; }
 
   .app-shell { flex-direction: column; }
-  .main-content { margin-right: 0; padding: .85rem; min-height: calc(100vh - 50px); }
+  .main-content { margin-right: 0; padding: .85rem; min-height: calc(100vh - 50px); max-width: 100%; }
+
+  /* Finance / KPI grids — break to 2 cols then 1 */
+  .kpi-grid, .kpi-grid.cols-3, .kpi-grid.cols-4 {
+    grid-template-columns: repeat(2, 1fr);
+    gap: .65rem; margin-bottom: 1rem;
+  }
+  .kpi-grid .card { padding: .8rem .65rem; }
+  .kpi-grid .card > div:first-child { font-size: 1.05rem !important; }
+
+  /* Charts row stacks */
+  .charts-row, .charts-row.cols-1 { grid-template-columns: 1fr; gap: .85rem; }
+  .charts-row .card { padding: .85rem; }
+
+  /* Finance toolbar wraps tightly */
+  .finance-toolbar { gap: .5rem .75rem; margin-bottom: .85rem; }
+  .finance-toolbar h3 { font-size: 1rem; flex: 1 1 100%; }
+  .finance-toolbar .form-input,
+  .finance-toolbar select { flex: 1 1 auto; min-width: 0; }
+  .finance-toolbar .btn { flex: 1 1 auto; }
+  .filter-row .btn { flex: 1 1 auto; }
+
+  /* All cards constrained */
+  .card, .panel { max-width: 100%; }
+  .card.table-wrap { padding: .65rem; }
+
+  /* Modal body/footer */
+  .modal-footer .btn { flex: 1 1 auto; }
+  .modal-footer { gap: .5rem; }
 
   /* Section header */
   .section-header { gap: .6rem; margin-bottom: 1rem; }
@@ -467,6 +545,7 @@ tr:hover td { background: #f8fafc; }
 /* Phones (small) */
 @media (max-width: 420px) {
   .stats-grid { grid-template-columns: 1fr; }
+  .kpi-grid, .kpi-grid.cols-3, .kpi-grid.cols-4 { grid-template-columns: 1fr; }
   .equipment-grid { grid-template-columns: 1fr; }
   .eq-card-img { height: 140px; }
   .cal-cell { min-height: 50px; padding: .15rem; }

@@ -90,8 +90,8 @@ export default function VariableExpenses({ onToast }) {
 
   return (
     <div>
-      <div style={{ display:'flex', alignItems:'center', gap:'1rem', marginBottom:'1.2rem', flexWrap:'wrap' }}>
-        <h3 style={{ margin:0 }}>📊 הוצאות משתנות</h3>
+      <div className="finance-toolbar">
+        <h3>📊 הוצאות משתנות</h3>
         <select className="form-input" style={{ width:'auto' }} value={year} onChange={e => setYear(+e.target.value)}>
           {years.map(y => <option key={y} value={y}>{y}</option>)}
         </select>
@@ -103,7 +103,7 @@ export default function VariableExpenses({ onToast }) {
       </div>
 
       {/* KPIs */}
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'1rem', marginBottom:'1.5rem' }}>
+      <div className="kpi-grid cols-3">
         <div className="card" style={{ padding:'1rem', textAlign:'center', borderTop:'3px solid #dc2626' }}>
           <div style={{ fontSize:'1.4rem', fontWeight:700, color:'#dc2626' }}>{nis(total)}</div>
           <div style={{ fontSize:'.8rem', color:'var(--muted)', marginTop:'.3rem' }}>סה"כ הוצאות</div>
@@ -219,7 +219,7 @@ export default function VariableExpenses({ onToast }) {
                   <input className="form-input" type={type} value={newForm[key]} onChange={e => setNewForm(f=>({...f,[key]:e.target.value}))} />
                 </div>
               ))}
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'1rem' }}>
+              <div className="form-row-2">
                 <div className="form-group">
                   <label className="form-label">סכום *</label>
                   <input className="form-input" type="number" min="0" step="0.01" value={newForm.amount} onChange={e => setNewForm(f=>({...f,amount:e.target.value}))} />
