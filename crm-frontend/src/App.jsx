@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AppProvider, useApp } from './contexts/AppContext.jsx';
 import Dashboard from './components/Dashboard.jsx';
 import Equipment from './components/Equipment/Equipment.jsx';
@@ -18,21 +18,55 @@ const TABS = [
 
 function Layout() {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const { state } = useApp();
+
+  useEffect(() => {
+    document.body.style.overflow = drawerOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [drawerOpen]);
+
+  const activeTabLabel = TABS.find(t => t.id === activeTab)?.label || '';
+
+  const handleSelectTab = (id) => {
+    setActiveTab(id);
+    setDrawerOpen(false);
+  };
 
   return (
     <div className="app-shell">
-      <nav className="sidebar">
+      <header className="mobile-topbar">
+        <button
+          className="hamburger"
+          aria-label="פתיחת תפריט"
+          onClick={() => setDrawerOpen(true)}
+        >
+          <span /><span /><span />
+        </button>
+        <div className="mobile-topbar-title">{activeTabLabel}</div>
+        <div className="mobile-topbar-spacer" />
+      </header>
+
+      {drawerOpen && <div className="drawer-overlay" onClick={() => setDrawerOpen(false)} />}
+
+      <nav className={`sidebar ${drawerOpen ? 'open' : ''}`}>
         <div className="sidebar-logo">
           <span className="logo-icon">📦</span>
           <span className="logo-text">CRM ציוד</span>
+          <button
+            className="drawer-close"
+            aria-label="סגירת תפריט"
+            onClick={() => setDrawerOpen(false)}
+          >
+            ✕
+          </button>
         </div>
         <ul className="nav-list">
           {TABS.map(tab => (
             <li key={tab.id}>
               <button
                 className={`nav-item ${activeTab === tab.id ? 'active' : ''}`}
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => handleSelectTab(tab.id)}
               >
                 {tab.label}
               </button>

@@ -213,6 +213,7 @@ export default function OrderModal({ order, onClose, onSaved }) {
             </div>
 
             {items.length > 0 && (
+              <div className="order-items-table-wrap">
               <table className="order-items-table">
                 <thead>
                   <tr>
@@ -245,6 +246,7 @@ export default function OrderModal({ order, onClose, onSaved }) {
                   ))}
                 </tbody>
               </table>
+              </div>
             )}
 
             <div className="order-total-row">
