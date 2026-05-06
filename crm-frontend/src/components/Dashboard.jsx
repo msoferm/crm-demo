@@ -2,15 +2,20 @@ import React, { useMemo, useState } from 'react';
 import { useApp } from '../contexts/AppContext.jsx';
 import { formatDate, formatCurrency, calcOrderTotals, today, STATUS_LABELS, PAYMENT_LABELS } from '../utils/helpers.js';
 
-function StatCard({ color, icon, label, value }) {
+function StatCard({ color, icon, label, value, onClick }) {
+  const Tag = onClick ? 'button' : 'article';
   return (
-    <article className={`stat-card stat-${color}`}>
+    <Tag
+      type={onClick ? 'button' : undefined}
+      className={`stat-card stat-${color}${onClick ? ' stat-card-clickable' : ''}`}
+      onClick={onClick}
+    >
       <div className="stat-icon">{icon}</div>
       <div className="stat-body">
         <span>{label}</span>
         <strong>{value}</strong>
       </div>
-    </article>
+    </Tag>
   );
 }
 
@@ -132,12 +137,12 @@ export default function Dashboard({ onNavigate }) {
 
       {/* Stats */}
       <div className="stats-grid">
-        <StatCard color="blue"   icon="📦" label="סוגי ציוד"     value={state.equipment.length} />
-        <StatCard color="green"  icon="📋" label="הזמנות פעילות" value={stats.active} />
-        <StatCard color="purple" icon="💰" label="הכנסות החודש"  value={formatCurrency(stats.monthRevenue)} />
-        <StatCard color="orange" icon="⏳" label="חוב גביה"       value={formatCurrency(stats.unpaidTotal)} />
-        {stats.overdue > 0 && <StatCard color="red" icon="⚠️" label="הזמנות באיחור" value={stats.overdue} />}
-        <StatCard color="teal"   icon="🗂️" label="יחידות מלאי"   value={state.equipment.reduce((s,e)=>s+e.quantity,0)} />
+        <StatCard color="blue"   icon="📦" label="סוגי ציוד"     value={state.equipment.length}                          onClick={() => onNavigate('equipment')} />
+        <StatCard color="green"  icon="📋" label="הזמנות פעילות" value={stats.active}                                    onClick={() => onNavigate('orders')} />
+        <StatCard color="purple" icon="💰" label="הכנסות החודש"  value={formatCurrency(stats.monthRevenue)}              onClick={() => onNavigate('finance')} />
+        <StatCard color="orange" icon="⏳" label="חוב גביה"       value={formatCurrency(stats.unpaidTotal)}              onClick={() => onNavigate('finance')} />
+        {stats.overdue > 0 && <StatCard color="red" icon="⚠️" label="הזמנות באיחור" value={stats.overdue}               onClick={() => onNavigate('orders')} />}
+        <StatCard color="teal"   icon="🗂️" label="יחידות מלאי"   value={state.equipment.reduce((s,e)=>s+e.quantity,0)}  onClick={() => onNavigate('equipment')} />
       </div>
 
       <div className="dash-panels">
